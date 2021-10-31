@@ -78,7 +78,7 @@ def make_text(chains, seed_word):
 
     return ' '.join(words)
 
-
+"""
 for input_path in ['gettysburg.txt', 'green-eggs.txt', 'the_boy_who_lived.txt']:
 
     # Open the file and turn it into one long string
@@ -98,4 +98,46 @@ for input_path in ['gettysburg.txt', 'green-eggs.txt', 'the_boy_who_lived.txt']:
     random_text = make_text(chains, seed_word)
 
     divider = "-=" * 40
-    print(f"From {input_path}:\n{random_text}\n\n{divider}-\n")
+    print(f"From {input_path}:\n{random_text}\n\n{divider}-\n")"""
+
+from termcolor import colored
+
+the_blender = ['nixon_resignation.txt','biden_on_covid19.txt','gettysburg.txt']
+
+def make_dictionary(input_path):
+
+    input_text = open_and_read_file(input_path)
+    chains = make_chains(input_text)
+    return chains
+
+def add_to_a_dict(chain_dict, input_text):
+    words = input_text.split(" ")
+
+    for i in range(len(words)-2):
+        key_tuple = (words[i], words[i+1])
+        next_word = words[i+2]
+        # https://stackoverflow.com/questions/12905999/python-dict-how-to-create-key-or-append-an-element-to-key
+        chain_dict.setdefault(key_tuple,[next_word]).append(next_word)
+    return chain_dict
+
+combo_chains = {}
+
+for each_file_path in the_blender:
+
+    input_text = open_and_read_file(each_file_path)
+    combo_chains = (add_to_a_dict(combo_chains, input_text))
+
+
+    #chain_1 = make_dictionary(each_file_path)
+    #combo_chains.update(chain_1)
+    #print(chain_1)
+    # z = x | y          z.update(y)
+    # https://stackoverflow.com/questions/38987/how-do-i-merge-two-dictionaries-in-a-single-expression-taking-union-of-dictiona
+    
+    #return combo_chains
+
+random_text = make_text(combo_chains, "Good")
+
+print(random_text)
+# print(combo_chains)
+
