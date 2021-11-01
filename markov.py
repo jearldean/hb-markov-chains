@@ -16,7 +16,7 @@ def open_and_read_file(file_path):
     
 
 
-def make_chains(text_string):
+def make_chains(text_string, chains=None):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -41,7 +41,8 @@ def make_chains(text_string):
         [None]
     """
 
-    chains = {}
+    if not chains:
+        chains = {}
 
     words = text_string.split(" ")
 
@@ -78,66 +79,36 @@ def make_text(chains, seed_word):
 
     return ' '.join(words)
 
-"""
-for input_path in ['gettysburg.txt', 'green-eggs.txt', 'the_boy_who_lived.txt']:
+def text_blender(input_path_or_paths):
+    """ Blend a single file, or a list of files.
 
-    # Open the file and turn it into one long string
-    try:
-        input_text = open_and_read_file(input_path)
-    except FileNotFoundError:
-        print(f"Uh oh; '{input_path}' is not a good input_path.")
-        break
+    'gettysburg.txt', 'green-eggs.txt', 'the_boy_who_lived.txt'"""
 
-    # Just make the seed word the first word of the text. Makes text natural-sounding.
-    seed_word = input_text.split(" ")[0]
+    input_paths = input_path_or_paths
+    if isinstance(input_path_or_paths, str):
+        input_paths = [input_path_or_paths]
 
-    # Get a Markov chain
-    chains = make_chains(input_text)
+    seed_words = []
+    chains = {}
+    for input_path in input_paths:
+        # Open the file and turn it into one long string
+        try:
+            input_text = open_and_read_file(input_path)
+        except FileNotFoundError:
+            print(f"Uh oh; '{input_path}' is not a good input_path.\n")
+            continue
+
+        # Just make the seed word the first word of the text. Makes text natural-sounding.
+        seed_words.append(input_text.split(" ")[0])
+
+        # Get a Markov chain
+        chains = make_chains(input_text, chains)
 
     # Produce random text
-    random_text = make_text(chains, seed_word)
+    random_text = make_text(chains, choice(seed_words))
 
-    divider = "-=" * 40
-    print(f"From {input_path}:\n{random_text}\n\n{divider}-\n")"""
+    print(random_text)
 
-from termcolor import colored
+text_blender(['reagan_sold_weapons.txt', 'gettysburg.txt', 'clinton_impeachment.txt', 'biden_on_covid19.txt', 'nixon_resignation.txt'])
 
-the_blender = ['nixon_resignation.txt','biden_on_covid19.txt','gettysburg.txt']
-
-def make_dictionary(input_path):
-
-    input_text = open_and_read_file(input_path)
-    chains = make_chains(input_text)
-    return chains
-
-def add_to_a_dict(chain_dict, input_text):
-    words = input_text.split(" ")
-
-    for i in range(len(words)-2):
-        key_tuple = (words[i], words[i+1])
-        next_word = words[i+2]
-        # https://stackoverflow.com/questions/12905999/python-dict-how-to-create-key-or-append-an-element-to-key
-        chain_dict.setdefault(key_tuple,[next_word]).append(next_word)
-    return chain_dict
-
-combo_chains = {}
-
-for each_file_path in the_blender:
-
-    input_text = open_and_read_file(each_file_path)
-    combo_chains = (add_to_a_dict(combo_chains, input_text))
-
-
-    #chain_1 = make_dictionary(each_file_path)
-    #combo_chains.update(chain_1)
-    #print(chain_1)
-    # z = x | y          z.update(y)
-    # https://stackoverflow.com/questions/38987/how-do-i-merge-two-dictionaries-in-a-single-expression-taking-union-of-dictiona
-    
-    #return combo_chains
-
-random_text = make_text(combo_chains, "Good")
-
-print(random_text)
-# print(combo_chains)
-
+text_blender('green-eggs.txt')
